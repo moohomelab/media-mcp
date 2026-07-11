@@ -158,7 +158,11 @@ async def discover_media(kind: str = "trending") -> str:
 async def get_download_queue() -> str:
     """Everything currently downloading (movies and TV): percent done,
     time left, and any problems (stalled, import blocked, errors)."""
-    items = await get_radarr().queue() + await get_sonarr().queue()
+    try:
+        items = await get_radarr().queue() + await get_sonarr().queue()
+    except Exception as err:
+        logger.exception("queue fetch failed")
+        return f"Error: download queue unavailable: {err}"
     return json.dumps(items, indent=2) if items else "The download queue is empty."
 
 

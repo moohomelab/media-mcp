@@ -77,6 +77,11 @@ async def test_get_download_queue_merges_both_arrs():
     assert [i["title"] for i in out] == ["Dune: Part Two", "Severance S02E05"]
 
 
+async def test_get_download_queue_missing_config_returns_error_string():
+    out = await server.get_download_queue()
+    assert out.startswith("Error:")
+
+
 async def test_discover_media_rejects_unknown_kind():
     out = await server.discover_media("horror")
     assert out.startswith("Error:")
