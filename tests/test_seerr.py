@@ -23,6 +23,21 @@ async def test_get_sends_api_key_and_returns_json():
     assert await client.get("/search", query="dune") == {"results": []}
 
 
+async def test_get_encodes_spaces_as_percent20_not_plus():
+    # Seerr's /search 400s on '+'-encoded spaces; it requires %20. Pin the
+    # raw query string so a regression can't silently reintroduce quote_plus.
+    seen = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen["raw"] = str(request.url.query)  # bytes-ish repr of the raw query
+        assert request.url.params["query"] == "dune part two"  # decoded round-trips
+        return httpx.Response(200, json={"results": []})
+
+    client = make_client(handler)
+    await client.get("/search", query="dune part two")
+    assert "%20" in seen["raw"] and "+" not in seen["raw"]
+
+
 async def test_post_sends_json_body():
     def handler(request: httpx.Request) -> httpx.Response:
         assert request.method == "POST"

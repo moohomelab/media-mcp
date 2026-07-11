@@ -6,6 +6,7 @@ the server layer contains no other mutating calls by design.
 """
 
 import os
+from urllib.parse import quote, urlencode
 
 import httpx
 
@@ -50,7 +51,11 @@ class SeerrClient:
         raise SeerrError(r.status_code, detail)
 
     async def get(self, path: str, **params) -> dict:
-        return self._check(await self._http.get(path, params=params))
+        # Seerr's /search rejects '+'-encoded spaces (400 "must be url encoded");
+        # it only accepts %20. httpx defaults to quote_plus for query params, so
+        # encode the query string ourselves with quote (space -> %20).
+        qs = urlencode(params, quote_via=quote)
+        return self._check(await self._http.get(f"{path}?{qs}" if qs else path))
 
     async def post(self, path: str, payload: dict) -> dict:
         return self._check(await self._http.post(path, json=payload))
