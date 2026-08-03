@@ -10,7 +10,7 @@ import json
 import logging
 
 from dotenv import load_dotenv
-from mcp.server.fastmcp import FastMCP
+from mcp.server import MCPServer
 
 from .arr import ArrClient, radarr_from_env, sonarr_from_env
 from .seerr import SeerrClient, SeerrError
@@ -19,7 +19,7 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-mcp = FastMCP("media-mcp", host="0.0.0.0", port=8000)
+mcp = MCPServer("media-mcp")
 
 _seerr: SeerrClient | None = None
 _radarr: ArrClient | None = None
@@ -184,7 +184,8 @@ async def get_media_status(tmdb_id: int, media_type: str) -> str:
 
 
 def main() -> None:
-    mcp.run(transport="streamable-http")
+    # v2 moved transport params from the constructor to run()
+    mcp.run(transport="streamable-http", host="0.0.0.0", port=8000)
 
 
 if __name__ == "__main__":

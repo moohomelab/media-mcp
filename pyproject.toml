@@ -5,7 +5,7 @@ description = "Media request MCP server - search/request/track movies & TV via S
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "mcp>=1.2.1,<2",
+    "mcp>=2,<3",
     "httpx>=0.25.0",
     "python-dotenv>=1.0.0",
 ]
